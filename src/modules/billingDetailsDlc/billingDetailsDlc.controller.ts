@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { BillingDetailsDlc } from 'src/entities/billingDetailsDlc.entity';
 import { BillingDetailsDlcService } from './billingDetailsDlc.service';
 
@@ -22,8 +23,16 @@ export class BillingDetailsDlcController
     @Post('add')
     async AddBillingDetailsDlc(
         @Body() billingInfoDlc: BillingDetailsDlc,
+        @Res() response : Response
     ) {
-        return this.billingDetailsDlcService.AddBillingDetailsDlc(billingInfoDlc);
+        const {success, message} = await this.billingDetailsDlcService.AddBillingDetailsDlc(billingInfoDlc);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -43,15 +52,31 @@ export class BillingDetailsDlcController
 
     @Put('update')
     async UpdateBillingDetailsDlc(
-        @Body() billingInfoDlc: BillingDetailsDlc
+        @Body() billingInfoDlc: BillingDetailsDlc,
+        @Res() response: Response
     ) {
-        return this.billingDetailsDlcService.UpdateBillingDetailsDlc(billingInfoDlc);
+        const {success, message} = await this.billingDetailsDlcService.UpdateBillingDetailsDlc(billingInfoDlc);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete')
     async DeleteBillingDetailsDlc(
-        @Body() billingInfoDlc: BillingDetailsDlc
+        @Body() billingInfoDlc: BillingDetailsDlc,
+        @Res() response: Response
     ) {
-        return this.billingDetailsDlcService.RemoveBillingDetailsDlc(billingInfoDlc.billingId, billingInfoDlc.dlcId);
+        const {success, message} = await this.billingDetailsDlcService.RemoveBillingDetailsDlc(billingInfoDlc.billingId, billingInfoDlc.dlcId);
+   
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

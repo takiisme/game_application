@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { GameSysReq } from 'src/entities/gameSysReq.entity';
 import { GameSysReqService } from './gameSysReq.service';
 
@@ -21,9 +22,17 @@ export class GameSysReqController
 
     @Post('add')
     async AddGameSysReq(
-        @Body() gameSysReqInfo: GameSysReq
+        @Body() gameSysReqInfo: GameSysReq,
+        @Res() response: Response
     ) {
-        return this.gameSysReqService.AddGameSysReq(gameSysReqInfo);
+        const {success, message} = await this.gameSysReqService.AddGameSysReq(gameSysReqInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,15 +47,31 @@ export class GameSysReqController
 
     @Put('update')
     async UpdateGameSysReq(
-        @Body() gameSysReqInfo: GameSysReq
+        @Body() gameSysReqInfo: GameSysReq,
+        @Res() response: Response
     ) {
-        return this.gameSysReqService.UpdateGameSysReq(gameSysReqInfo);
+        const {success, message} = await this.gameSysReqService.UpdateGameSysReq(gameSysReqInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete')
     async DeleteGameSysReq(
-        @Body() gameSysReqInfo: GameSysReq
+        @Body() gameSysReqInfo: GameSysReq,
+        @Res() response: Response
     ) {
-        return this.gameSysReqService.RemoveGameSysReq(gameSysReqInfo.gameId, gameSysReqInfo.reqType);
+        const {success, message} = await this.gameSysReqService.RemoveGameSysReq(gameSysReqInfo.gameId, gameSysReqInfo.reqType);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

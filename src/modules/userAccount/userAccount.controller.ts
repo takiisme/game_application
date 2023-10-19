@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { UserAccount } from 'src/entities/userAccount.entity';
 import { UserAccountService } from './userAccount.service';
 
@@ -20,9 +21,17 @@ export class UserAccountController {
 
     @Post('add')
     async AddUserAccount(
-        @Body() userAccountInfo: UserAccount
+        @Body() userAccountInfo: UserAccount,
+        @Res() response: Response
     ) {
-        return this.userAccountService.AddUserAccount(userAccountInfo);
+        const {success, message} = await this.userAccountService.AddUserAccount(userAccountInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -37,13 +46,31 @@ export class UserAccountController {
 
     @Put('update')
     async UpdateUserAccount(
-        @Body() userAccountInfo: UserAccount
+        @Body() userAccountInfo: UserAccount,
+        @Res() response: Response
     ) {
-        return this.userAccountService.UpdateUserAccount(userAccountInfo);
+        const {success, message} = await this.userAccountService.UpdateUserAccount(userAccountInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteUserAccount(@Param('Id') Id: string) {
-        return this.userAccountService.RemoveUserAccount(Id);
+    async DeleteUserAccount(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.userAccountService.RemoveUserAccount(Id);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 }

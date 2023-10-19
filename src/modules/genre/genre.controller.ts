@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Genre } from 'src/entities/genre.entity';
 import { GenreService } from './genre.service';
 
@@ -21,9 +22,17 @@ export class GenreController
 
     @Post('add')
     async AddGenre(
-        @Body() genreInfo: Genre
+        @Body() genreInfo: Genre,
+        @Res() response: Response
     ) {
-        return this.genreService.AddGenre(genreInfo);
+        const {success, message} = await this.genreService.AddGenre(genreInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,13 +47,31 @@ export class GenreController
 
     @Put('update')
     async UpdateGenre(
-        @Body() genreInfo: Genre
+        @Body() genreInfo: Genre,
+        @Res() response: Response
     ) {
-        return this.genreService.UpdateGenre(genreInfo);
+        const {success, message} = await this.genreService.UpdateGenre(genreInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteGenre(@Param('Id') Id: string) {
-        return this.genreService.RemoveGenre(Id);
+    async DeleteGenre(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.genreService.RemoveGenre(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

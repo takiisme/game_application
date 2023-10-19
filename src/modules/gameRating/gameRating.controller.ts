@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { GameRating } from 'src/entities/gameRating.entity';
 import { GameRatingService } from './gameRating.service';
 
@@ -20,9 +21,17 @@ export class GameRatingController {
 
     @Post('add')
     async AddGameRating(
-        @Body() gameRatingInfo: GameRating
+        @Body() gameRatingInfo: GameRating,
+        @Res() response: Response
     ) {
-        return this.gameRatingService.AddGameRating(gameRatingInfo);
+        const {success, message} = await this.gameRatingService.AddGameRating(gameRatingInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -42,15 +51,31 @@ export class GameRatingController {
 
     @Put('update/:Id')
     async UpdateGameRating(
-        @Body() gameRatingInfo: GameRating
+        @Body() gameRatingInfo: GameRating,
+        @Res() response: Response
     ) {
-        return this.gameRatingService.UpdateGameRating(gameRatingInfo);
+        const {success, message} = await this.gameRatingService.UpdateGameRating(gameRatingInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Delete('delete')
     async DeleteGameRating(
-        @Body() gameRatingInfo: GameRating
+        @Body() gameRatingInfo: GameRating,
+        @Res() response: Response
     ) {
-        return this.gameRatingService.RemoveGameRating(gameRatingInfo.userId, gameRatingInfo.gameId);
+        const {success, message} = await this.gameRatingService.RemoveGameRating(gameRatingInfo.userId, gameRatingInfo.gameId);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 }

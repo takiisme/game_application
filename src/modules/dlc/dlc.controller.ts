@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express'
 import { Dlc } from 'src/entities/dlc.entity';
 import { DlcService } from './dlc.service';
 
@@ -21,9 +22,17 @@ export class DlcController
 
     @Post('add')
     async AddDlc(
-        @Body() dlcInfo: Dlc
+        @Body() dlcInfo: Dlc,
+        @Res() response: Response
     ) {
-        return this.dlcService.AddDlc(dlcInfo);
+        const {success, message} = await this.dlcService.AddDlc(dlcInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,13 +47,31 @@ export class DlcController
 
     @Put('update/:Id')
     async UpdateDlc(
-        @Body() dlcInfo: Dlc
+        @Body() dlcInfo: Dlc,
+        @Res() response: Response
     ) {
-        return this.dlcService.UpdateDlc(dlcInfo);
+        const {success, message} = await this.dlcService.UpdateDlc(dlcInfo);
+        
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
     
     @Delete('delete/:Id')
-    async DeleteDlcById(@Param('Id') Id: string) {
-        return this.dlcService.RemoveDlc(Id);
+    async DeleteDlcById(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.dlcService.RemoveDlc(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

@@ -11,37 +11,118 @@ export class SalePeriodService {
         private readonly salePeriodRepo: Repository<SalePeriod>,
     ) {}
 
-    async AddSalePeriod(salePeriodInfo: SalePeriod) {
-        const salePeriod = this.salePeriodRepo.create({
-            'periodId': salePeriodInfo.periodId,
-            'startDate': salePeriodInfo.startDate,
-            'endDate': salePeriodInfo.endDate,
-            'saleId': salePeriodInfo.saleId
-        })
-        await this.salePeriodRepo.save(salePeriod);
-    }
-
-    async GetSalePeriodById(Id: string) {
-        return this.salePeriodRepo.createQueryBuilder('sale_period')
-            .select([]).where('sale_period.periodId = :Id', {Id : Id}).getRawMany();
-    }
-
-    async GetAllSalePeriod() {
-        return this.salePeriodRepo.find();
-    }
-
-    async UpdateSalePeriod(salePeriodInfo: SalePeriod) {
-        await this.salePeriodRepo.update(salePeriodInfo.periodId,
-            {
+    async AddSalePeriod(salePeriodInfo: SalePeriod): Promise<{success: boolean, message: string}> {
+        try {
+            const salePeriod = this.salePeriodRepo
+            .create({
+                'periodId': salePeriodInfo.periodId,
                 'startDate': salePeriodInfo.startDate,
                 'endDate': salePeriodInfo.endDate,
                 'saleId': salePeriodInfo.saleId
-            }    
-        );
+            })
+            await this.salePeriodRepo.save(salePeriod);
+
+            return {
+                success: true,
+                message: 'Record added successfully.'
+            }
+        }
+        catch(error) {
+            if(error.code === '23505') {
+                return {
+                    success: false,
+                    message: "Record ID is taken already."
+                }
+            }
+
+            return {
+                success: false,
+                message: "An error occured while adding the record."
+            }
+        }
     }
 
-    async RemoveSalePeriod(Id: string) {
-        await this.salePeriodRepo.createQueryBuilder()
-            .delete().from(SalePromotion).where('periodId = :Id', {Id: Id}).execute();
+    async GetSalePeriodById(Id: string): Promise<SalePeriod[]> {
+        try {
+            return this.salePeriodRepo
+            .createQueryBuilder('sale_period')
+            .select([])
+            .where('sale_period.periodId = :Id', {Id : Id})
+            .getRawMany();
+        }
+        catch(error) {
+            throw new Error("An error occured while fetching records");
+        }
+    }
+
+    async GetAllSalePeriod(): Promise<SalePeriod[]> {
+        try {
+            return this.salePeriodRepo.find();
+        }
+        catch(error) {
+            throw new Error("An error occured while fetching records");
+        }
+    }
+
+    async UpdateSalePeriod(salePeriodInfo: SalePeriod): Promise<{success: boolean, message: string}> {
+        try {
+            const result = await this.salePeriodRepo
+            .update(salePeriodInfo.periodId,
+                {
+                    'startDate': salePeriodInfo.startDate,
+                    'endDate': salePeriodInfo.endDate,
+                    'saleId': salePeriodInfo.saleId
+                }    
+            );
+
+            if (result.affected === 0) {
+                return {
+                    success: false,
+                    message: 'Record Id does not exist.'
+                }
+            }
+            else {
+                return {
+                    success: true,
+                    message: 'Record updated successfully.'
+                }
+            }
+        }
+        catch(error) {
+            return {
+                success: false,
+                message: 'An error occured while updating the record.'
+            }
+        }
+    }
+
+    async RemoveSalePeriod(Id: string): Promise<{success: boolean, message: string}> {
+        try {
+            const result = await this.salePeriodRepo
+            .createQueryBuilder()
+            .delete()
+            .from(SalePromotion)
+            .where('periodId = :Id', {Id: Id})
+            .execute();
+
+            if(result.affected === 0) {
+                return {
+                    success: false,
+                    message: 'Record Id does not exist.'
+                }
+            }
+            else {
+                return {
+                    success: true,
+                    message: 'Record deleted successfully.'
+                }
+            }
+        }
+        catch(error) {
+            return {
+                success: false,
+                message: 'An error occured while deleting the record.'
+            }
+        }
     }
 }

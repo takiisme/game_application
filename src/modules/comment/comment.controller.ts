@@ -9,7 +9,9 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express'
 import { Comment } from 'src/entities/comment.entity';
+import { CommentModule } from './comment.module';
 import { CommentService } from './comment.service';
 
 @Controller('comment')
@@ -20,9 +22,17 @@ export class CommentController {
 
     @Post('add')
     async AddComment(
-        @Body() commentInfo : Comment
+        @Body() commentInfo : Comment,
+        @Res() response: Response
     ) {
-        return this.commentService.AddComment(commentInfo);
+        const {success, message} = await this.commentService.AddComment(commentInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -37,13 +47,31 @@ export class CommentController {
 
     @Put('update')
     async UpdateComment(
-        @Body() commentInfo: Comment
+        @Body() commentInfo: Comment,
+        @Res() response: Response
     ) {
-        return this.commentService.UpdateComment(commentInfo);
+        const {success, message} = await this.commentService.UpdateComment(commentInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete/:Id')
-    async RemoveComment(@Param('Id') Id: string) {
-        return this.commentService.RemoveComment(Id);
+    async RemoveComment(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.commentService.RemoveComment(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

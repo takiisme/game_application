@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { Billing } from 'src/entities/billing.entity';
 import { BillingService } from './billing.service';
 
@@ -22,8 +23,16 @@ export class BillingController
     @Post('add')
     async AddBilling(
         @Body() billingInfo: Billing,
+        @Res() response: Response
     ) {
-        return this.billingService.AddBilling(billingInfo);
+        const {success, message} = await this.billingService.AddBilling(billingInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -39,12 +48,30 @@ export class BillingController
     @Put('update/:Id')
     async UpdateBilling(
         @Body() billingInfo: Billing,
+        @Res() response: Response
     ) {
-        return this.billingService.UpdateBilling(billingInfo);
+        const {success, message} = await this.billingService.UpdateBilling(billingInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteBillingById(@Param('Id') Id: string) {
-        return this.billingService.RemoveBilling(Id);
+    async DeleteBillingById(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.billingService.RemoveBilling(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

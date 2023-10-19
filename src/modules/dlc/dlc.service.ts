@@ -10,43 +10,124 @@ export class DlcService {
         private readonly dlcRepo: Repository<Dlc>,
     ) {}
 
-    async AddDlc(dlcInfo: Dlc) {
-        const dlc = this.dlcRepo.create({
-            'dlcId': dlcInfo.dlcId,
-            'dlcName': dlcInfo.dlcName,
-            'description': dlcInfo.description,
-            'releaseDate': dlcInfo.releaseDate,
-            'price': dlcInfo.price,
-            'devId': dlcInfo.devId,
-            'gameId': dlcInfo.gameId
-        })
-        await this.dlcRepo.save(dlc);
-    }
-
-    async GetAllDlc() {
-        return this.dlcRepo.find();
-    }
-
-    async GetDlcById(Id: string) {
-        return this.dlcRepo.createQueryBuilder('dlc')
-            .select([]).where('dlc.dlcId =: Id', {Id: Id}).getRawMany();
-    }
-
-    async UpdateDlc(dlcInfo: Dlc) {
-        await this.dlcRepo.update(dlcInfo.dlcId,
-            {
+    async AddDlc(dlcInfo: Dlc): Promise<{success: boolean, message: string}> {
+        try {
+            const dlc = this.dlcRepo
+            .create({
+                'dlcId': dlcInfo.dlcId,
                 'dlcName': dlcInfo.dlcName,
                 'description': dlcInfo.description,
                 'releaseDate': dlcInfo.releaseDate,
                 'price': dlcInfo.price,
                 'devId': dlcInfo.devId,
                 'gameId': dlcInfo.gameId
-            }  
-        );
+            })
+            await this.dlcRepo.save(dlc);
+
+            return {
+                success: true,
+                message: 'Record added successfully.'
+            }
+        }
+        catch(error) {
+            if(error.code === '23505') {
+                return {
+                    success: false,
+                    message: "Record ID is taken already."
+                }
+            }
+
+            return {
+                success: false,
+                message: "An error occured while adding the record."
+            }
+        }
     }
 
-    async RemoveDlc(Id: string) {
-        await this.dlcRepo.createQueryBuilder()
-            .delete().from(Dlc).where('dlcId = :Id', {Id: Id}).execute();
+    async GetAllDlc(): Promise<Dlc[]> {
+        try {
+            return this.dlcRepo.find();
+        }
+        catch(error) {
+            throw new Error("An error occured while fetching records");
+        }
+    }
+
+    async GetDlcById(Id: string): Promise<Dlc[]> {
+        try {
+            return this.dlcRepo
+            .createQueryBuilder('dlc')
+                .select([])
+                .where('dlc.dlcId =: Id', {Id: Id})
+                .getRawMany();
+        }
+        catch(error) {
+            throw new Error("An error occured while fetching records");
+        }
+    }
+
+    async UpdateDlc(dlcInfo: Dlc): Promise<{success: boolean, message: string}> {
+        try {
+            const result = await this.dlcRepo
+            .update(dlcInfo.dlcId,
+                {
+                    'dlcName': dlcInfo.dlcName,
+                    'description': dlcInfo.description,
+                    'releaseDate': dlcInfo.releaseDate,
+                    'price': dlcInfo.price,
+                    'devId': dlcInfo.devId,
+                    'gameId': dlcInfo.gameId
+                }  
+            );
+
+            if (result.affected === 0) {
+                return {
+                    success: false,
+                    message: 'Record Id does not exist.'
+                }
+            }
+            else {
+                return {
+                    success: true,
+                    message: 'Record updated successfully.'
+                }
+            }
+        }
+        catch(error) {
+            return {
+                success: false,
+                message: 'An error occured while updating the record.'
+            }
+        }
+    }
+
+    async RemoveDlc(Id: string): Promise<{success: boolean, message: string}> {
+        try {
+            const result = await this.dlcRepo
+            .createQueryBuilder()
+                .delete()
+                .from(Dlc)
+                .where('dlcId = :Id', {Id: Id})
+                .execute();
+
+            if(result.affected === 0) {
+                return {
+                    success: false,
+                    message: 'Record Id does not exist.'
+                }
+            }
+            else {
+                return {
+                    success: true,
+                    message: 'Record deleted successfully.'
+                }
+            }
+        }
+        catch(error) {
+            return {
+                success: false,
+                message: 'An error occured while deleting the record.'
+            }
+        }
     }
 }

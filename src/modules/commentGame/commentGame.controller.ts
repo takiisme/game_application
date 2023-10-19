@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { CommentGame } from 'src/entities/commentGame.entity';
 import { CommentGameService } from './commentGame.service';
 
@@ -21,9 +22,17 @@ export class CommentGameController
 
     @Post('add')
     async AddComemntGame(
-        @Body() commentGameInfo: CommentGame
+        @Body() commentGameInfo: CommentGame,
+        @Res() response: Response
     ) {
-        return this.commentGameService.AddCommentGame(commentGameInfo);
+        const {success, message} = await this.commentGameService.AddCommentGame(commentGameInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,8 +47,16 @@ export class CommentGameController
 
     @Delete('delete')
     async DeleteCommentGame(
-        @Body() commentGameInfo: CommentGame
+        @Body() commentGameInfo: CommentGame,
+        @Res() response: Response
     ) {
-        return this.commentGameService.RemoveCommentGame(commentGameInfo.commentId, commentGameInfo.gameId);
+        const {success, message} = await this.commentGameService.RemoveCommentGame(commentGameInfo.commentId, commentGameInfo.gameId);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

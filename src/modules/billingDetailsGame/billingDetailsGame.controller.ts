@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { response, Response } from 'express';
 import { BillingDetailsGame } from 'src/entities/billingDetailsGame.entity';
 import { BillingDetailsGameService } from './billingDetailsGame.service';
 
@@ -20,9 +21,17 @@ export class BillingDetailsGameController {
 
     @Post('add')
     async AddBillingDetailsGame(
-        @Body() billingInfoGame: BillingDetailsGame
+        @Body() billingInfoGame: BillingDetailsGame,
+        @Res() response: Response
     ) {
-        return this.billingDetailsGameService.AddBillingDetailsGame(billingInfoGame);
+        const {success, message} = await this.billingDetailsGameService.AddBillingDetailsGame(billingInfoGame);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -42,15 +51,31 @@ export class BillingDetailsGameController {
 
     @Put('update')
     async UpdateBillingDetailsGame(
-        @Body() billingInfoGame: BillingDetailsGame
+        @Body() billingInfoGame: BillingDetailsGame,
+        @Res() response: Response
     ) {
-        return this.billingDetailsGameService.UpdateBillingDetailsGame(billingInfoGame);
+        const {success, message} = await this.billingDetailsGameService.UpdateBillingDetailsGame(billingInfoGame);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete') 
     async DeleteBillingDetailsGame (
-        @Body() billingInfoGame: BillingDetailsGame
+        @Body() billingInfoGame: BillingDetailsGame,
+        @Res() response: Response
     ) {
-        return this.billingDetailsGameService.RemoveBillingDetailsGame(billingInfoGame.billingId, billingInfoGame.gameId);
+        const {success, message} = await this.billingDetailsGameService.RemoveBillingDetailsGame(billingInfoGame.billingId, billingInfoGame.gameId);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

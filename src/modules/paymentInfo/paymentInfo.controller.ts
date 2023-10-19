@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { PaymentInfo } from 'src/entities/paymentInfo.entity';
 import { PaymentInfoService } from './paymentInfo.service';
 
@@ -20,9 +21,17 @@ export class PaymentInfoController {
 
     @Post('add')
     async AddPaymentInfo(
-        @Body() payment: PaymentInfo
+        @Body() payment: PaymentInfo,
+        @Res() response: Response
     ) {
-        return this.paymentInfoService.AddPaymentInfo(payment);
+        const {success, message} = await this.paymentInfoService.AddPaymentInfo(payment);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -37,15 +46,31 @@ export class PaymentInfoController {
 
     @Post('update')
     async UpdatePaymentInfo(
-        @Body() payment: PaymentInfo
+        @Body() payment: PaymentInfo,
+        @Res() response: Response
     ) {
-        return this.paymentInfoService.UpdatePaymentInfo(payment);
+        const {success, message} = await this.paymentInfoService.UpdatePaymentInfo(payment);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete')
     async DeletePaymentInfo(
-        @Body() payment: PaymentInfo
+        @Body() payment: PaymentInfo,
+        @Res() response: Response
     ) {
-        return this.paymentInfoService.RemovePaymentInfo(payment.userId, payment.accountNumber);
+        const {success, message} = await this.paymentInfoService.RemovePaymentInfo(payment.userId, payment.accountNumber);
+        
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

@@ -9,9 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
-import { ParamsTokenFactory } from '@nestjs/core/pipes';
-import { response } from 'express';
-import { DeleteDateColumn } from 'typeorm';
+import { Response } from 'express';
 import { Developer } from 'src/entities/developer.entity';
 import { DeveloperService } from './developer.service';
 
@@ -25,8 +23,16 @@ export class DeveloperController
     @Post('add')
     async AddDeveloper(
         @Body() developerInfo: Developer,
+        @Res() response: Response
     ) {
-        return this.developerService.AddDeveloper(developerInfo);
+        const {success, message} = await this.developerService.AddDeveloper(developerInfo);
+        
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -42,12 +48,30 @@ export class DeveloperController
     @Put('update/:Id')
     async UpdateDeveloper(
         @Body() developerInfo: Developer,
+        @Res() response: Response
     ) {
-        return this.developerService.UpdateDeveloper(developerInfo);
+        const {success, message} = await this.developerService.UpdateDeveloper(developerInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteDeveloperById(@Param('Id') Id: string) {
-        return this.developerService.RemoveDeveloper(Id);
+    async DeleteDeveloperById(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.developerService.RemoveDeveloper(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

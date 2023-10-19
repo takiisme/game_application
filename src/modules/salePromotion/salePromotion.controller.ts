@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { SalePromotion } from 'src/entities/salePromotion.entity';
 import { SalePromotionService } from './salePromotion.service';
 
@@ -21,9 +22,17 @@ export class SalePromotionController
 
     @Post('add')
     async AddSalePromotion(
-        @Body() salePromotionInfo: SalePromotion
+        @Body() salePromotionInfo: SalePromotion,
+        @Res() response: Response
     ) {
-        return this.salePromotionService.AddSalePromotion(salePromotionInfo);
+        const {success, message} = await this.salePromotionService.AddSalePromotion(salePromotionInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,13 +47,31 @@ export class SalePromotionController
 
     @Put('update')
     async UpdateSalePromotion(
-        @Body() salePromotionInfo: SalePromotion
+        @Body() salePromotionInfo: SalePromotion,
+        @Res() response: Response
     ) {
-        return this.salePromotionService.UpdateSalePromotion(salePromotionInfo);
+        const {success, message} = await this.salePromotionService.UpdateSalePromotion(salePromotionInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteSalePromotion(@Param('Id') Id: string) {
-        return this.salePromotionService.RemoveSalePromotion(Id);
+    async DeleteSalePromotion(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.salePromotionService.RemoveSalePromotion(Id);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 }

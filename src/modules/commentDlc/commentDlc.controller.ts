@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { CommentDlc } from 'src/entities/commentDlc.entity';
 import { CommentDlcService} from './commentDlc.service';
 
@@ -21,9 +22,17 @@ export class CommentDlcController
 
     @Post('add')
     async AddComemntDlc(
-        @Body() commentDlcInfo: CommentDlc
+        @Body() commentDlcInfo: CommentDlc,
+        @Res() response: Response
     ) {
-        return this.commentDlcService.AddCommentDlc(commentDlcInfo);
+        const {success, message} = await this.commentDlcService.AddCommentDlc(commentDlcInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -38,8 +47,16 @@ export class CommentDlcController
 
     @Delete('delete')
     async DeleteCommentDlc(
-        @Body() commentDlcInfo: CommentDlc
+        @Body() commentDlcInfo: CommentDlc,
+        @Res() response: Response
     ) {
-        return this.commentDlcService.RemoveCommentDlc(commentDlcInfo.commentId, commentDlcInfo.dlcId);
+        const {success, message} = await this.commentDlcService.RemoveCommentDlc(commentDlcInfo.commentId, commentDlcInfo.dlcId);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

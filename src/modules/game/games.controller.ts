@@ -9,10 +9,8 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
-import { ParamsTokenFactory } from '@nestjs/core/pipes';
-import { response } from 'express';
+import { Response } from 'express';
 import { Game } from 'src/entities/game.entity';
-import { DeleteDateColumn } from 'typeorm';
 import { GameService } from './games.service';
 
 @Controller('game') 
@@ -25,8 +23,16 @@ export class GameController
     @Post('add')
     async AddGame(
         @Body() gameInfo: Game,
+        @Res() response: Response
     ) {
-        return this.gameService.AddGame(gameInfo);
+        const {success, message} = await this.gameService.AddGame(gameInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -42,12 +48,30 @@ export class GameController
     @Put('update')
     async UpdateGame(
         @Body() gameInfo: Game,
+        @Res() response: Response
     ) {
-        return this.gameService.UpdateGame(gameInfo);
+        const {success, message} = await this.gameService.UpdateGame(gameInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete/:Id')
-    async DeleteGameById(@Param('Id') Id: string) {
-        return this.gameService.RemoveGame(Id);
+    async DeleteGameById(
+        @Param('Id') Id: string,
+        @Res() response: Response
+    ) {
+        const {success, message} = await this.gameService.RemoveGame(Id);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }

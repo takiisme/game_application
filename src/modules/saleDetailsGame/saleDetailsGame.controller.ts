@@ -9,6 +9,7 @@ import {
     Res,
     ValidationPipe,
 } from '@nestjs/common';
+import { Response } from 'express';
 import { SaleDetailsGame } from 'src/entities/saleDetailsGame.entity';
 import { SaleDetailsGameService } from './saleDetailsGame.service';
 
@@ -20,9 +21,17 @@ export class SaleDetailsGameController {
 
     @Post('add')
     async AddSaleDetailsGame(
-        @Body() saleDetailsGameInfo: SaleDetailsGame
+        @Body() saleDetailsGameInfo: SaleDetailsGame,
+        @Res() response: Response
     ) {
-        return this.saleDetailsGameService.AddSaleDetailsGame(saleDetailsGameInfo);
+        const {success, message} = await this.saleDetailsGameService.AddSaleDetailsGame(saleDetailsGameInfo);
+
+        if(success) {
+            response.status(201).json({message});
+        }
+        else {
+            response.status(400).json({message});
+        }
     }
 
     @Get('getall')
@@ -47,15 +56,31 @@ export class SaleDetailsGameController {
 
     @Put('update')
     async UpdateSaleDetailsGame(
-        @Body() saleDetailsGameInfo: SaleDetailsGame
+        @Body() saleDetailsGameInfo: SaleDetailsGame,
+        @Res() response: Response
     ) {
-        return this.saleDetailsGameService.UpdateSaleDetailsGame(saleDetailsGameInfo);
+        const {success, message} = await this.saleDetailsGameService.UpdateSaleDetailsGame(saleDetailsGameInfo);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 
     @Delete('delete')
     async DeleteSaleDetailsGame(
-        @Body() saleDetailsGameInfo: SaleDetailsGame
+        @Body() saleDetailsGameInfo: SaleDetailsGame,
+        @Res() response: Response
     ) {
-        return this.saleDetailsGameService.RemoveSaleDetailsGame(saleDetailsGameInfo.periodId.toString(), saleDetailsGameInfo.gameId);
+        const {success, message} = await this.saleDetailsGameService.RemoveSaleDetailsGame(saleDetailsGameInfo.periodId.toString(), saleDetailsGameInfo.gameId);
+
+        if(success) {
+            response.status(200).json({message})
+        }
+        else {
+            response.status(400).json({message})
+        }
     }
 }
